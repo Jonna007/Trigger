@@ -2,21 +2,22 @@
 
 ## INVOICE DB
 
-### 1. El numero total de facturas realizadas por cada cliente.(nombre_cliente | direccion | nro_facturas)
+### 1. Crear un función y un trigger para validar que el numero de cedula del cliente tenga 10 números (no letras) en la tabla cliente.
 
 ```sql
-SELECT 
-    c.fullname AS nombre_cliente,
-    c.address AS direccion,
-    COUNT(i.id) AS nro_facturas
-FROM 
-    client c
-JOIN 
-    invoice i ON c.id = i.client_id
-GROUP BY 
-    c.fullname, c.address;
+CREATE OR REPLACE FUNCTION validar_cedula_cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF LENGTH(NEW.nui) != 10 OR NEW.nui !~ '^[0-9]+$' THEN
+    RAISE EXCEPTION 'El número de cédula debe tener exactamente 10 números.';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
-![image](https://github.com/Jonna007/Queries_with_Subqueries/assets/146044709/985fb668-0ce0-4d02-b172-b0b311713e9c)
+![image](https://github.com/user-attachments/assets/577916fb-3b9d-467c-9de9-b481a9cea153)
+
 
 
 ### 2. Listar nombre y correo de los clientes junto a su compra mas cara realizada. (nombres |  correo   | total_mas_alto)
